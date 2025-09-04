@@ -1,16 +1,17 @@
 package bootcamp.bank;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class Account {
     private String accountNumber;
     private BigDecimal balance;
-    private Client client;
+    private List<Client> clients;
 
-    public Account(String accountNumber, BigDecimal balance, Client client) {
+    public Account(String accountNumber, BigDecimal balance, List<Client> clients) {
         this.accountNumber = accountNumber;
         this.balance = balance;
-        this.client = client;
+        this.clients = clients;
     }
 
     public void deposit(BigDecimal amount) {
@@ -47,11 +48,11 @@ public class Account {
         this.balance = balance;
     }
 
-    public Client getClient() {
-        return client;
+    public List<Client> getClients() {
+        return clients;
     }
 
-    public void setClient(Client client) {
-        this.client = client;
+    public void setClients(List<Client> clients) {
+        this.clients = clients;
     }
 }

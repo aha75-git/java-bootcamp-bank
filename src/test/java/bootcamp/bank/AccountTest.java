@@ -4,17 +4,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AccountTest {
     private Account account;
-    private Client client;
 
     @BeforeEach
     void setUp() {
-        client = new Client("Andreas", "Mustermann", "12233");
-        account = new Account("A12345", BigDecimal.valueOf(2000), client);
+        Client client = new Client("Andreas", "Mustermann", "12233");
+        account = new Account("A12345", BigDecimal.valueOf(2000), List.of(client));
     }
 
     @Test

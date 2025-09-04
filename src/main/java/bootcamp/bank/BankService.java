@@ -1,18 +1,17 @@
 package bootcamp.bank;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.math.RoundingMode;
+import java.util.*;
 
 public class BankService {
     private Map<String, Account> accounts = new HashMap<>();
 
-    public String openAccountAndGetAccountNumber(Client client) {
+    public String openAccountAndGetAccountNumber(List<Client> clients) {
         String accountNumber = this.generateAccountNumber();
-        Account account = new Account(accountNumber, BigDecimal.valueOf(2000), client);
+        Account account = new Account(accountNumber, BigDecimal.ZERO, clients);
         this.accounts.put(accountNumber, account);
-        return account.getAccountNumber();
+        return accountNumber;
     }
 
     public void transferMoney(String fromAccountNumber, String toAccountNumber, BigDecimal amount) {
@@ -33,5 +32,40 @@ public class BankService {
 
     public Account getAccount(String accountNumber) {
         return accounts.get(accountNumber);
+    }
+
+    public List<String> split(String accountNumber) {
+        Account account = accounts.get(accountNumber);
+        if (account == null || account.getClients().size() < 2) {
+            throw new IllegalArgumentException("Konto nicht gefunden oder nicht genügend Kunden zum Aufteilen.");
+        }
+
+        BigDecimal totalBalance = account.getBalance();
+        int numberOfClients = account.getClients().size();
+        BigDecimal splitAmount = totalBalance.divide(BigDecimal.valueOf(numberOfClients), 2, RoundingMode.DOWN);
+        BigDecimal remainder = totalBalance.subtract(splitAmount.multiply(BigDecimal.valueOf(numberOfClients)));
+
+        List<String> newAccountNumbers = new ArrayList<>();
+        for (Client client : account.getClients()) {
+            String newAccountNumber = this.openAccountAndGetAccountNumber(List.of(client));
+            Account newAccount = accounts.get(newAccountNumber);
+            newAccount.deposit(splitAmount);
+            if (remainder.compareTo(BigDecimal.ZERO) > 0) {
+                newAccount.deposit(new BigDecimal("0.01")); // Verteile den Restbetrag
+                remainder = remainder.subtract(BigDecimal.ONE);
+            }
+            newAccountNumbers.add(newAccountNumber);
+        }
+
+        // Lösche das alte Konto
+        accounts.remove(accountNumber);
+        return newAccountNumbers;
+    }
+
+    public void applyInterest(BigDecimal interestRate) {
+        for (Account account : accounts.values()) {
+            BigDecimal interest = account.getBalance().multiply(interestRate).divide(BigDecimal.valueOf(100),  2, RoundingMode.DOWN);
+            account.deposit(interest);
+        }
     }
 }
